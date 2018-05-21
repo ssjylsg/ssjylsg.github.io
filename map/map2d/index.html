@@ -1,0 +1,75 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>地图API-首页</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style type="text/css">
+    .gis-container {
+        width: 100%;
+        height: 100%;
+    }
+
+    #mapId {
+        margin-top: 30px;
+        margin-left: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        position: absolute;
+        width: 800px;
+        height: 700px;
+    }
+    </style>
+</head>
+
+<body class="main-body">
+    <div class="gis-container">
+        <div id="displaymap" class="right" style="margin-top: 30px">
+            <div id="mapId"></div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    </div>
+    <script type="text/javascript" src="js/Init.js"></script>
+    <script type="text/javascript">
+    var mapConfig =  {
+    "mapOpts": {
+        "minZoom": 13,
+        "defaultZoom": 13,
+        "maxZoom": 20,
+        "centerPoint": [110.74768, 32.63488],
+        "projection": "EPSG:4326"
+    },
+    "vectorLayer": [{
+        "layerName": "shanghaiBaseMap1",
+        "layerType": "NPMapLib.Layers.TDMapLayer",
+        "layerOpt": {
+            "url": ["http://10.74.64.95/PGIS_S_LWTileMap_TDT/Maps/SL/EzMap?Service=getImage&Type=RGB&ZoomOffset=0&V=1.0.0&Col=${x}&Row=${y}&Zoom=${z} "],
+            "isBaseLayer": true,
+            "mapType": "EMap"
+        }
+    }],
+    "sattilateLayer": []
+ }
+;
+    var map = new NPMapLib.Map(document.getElementById("mapId"), mapConfig.mapOpts);
+    var baseLayer = [],
+        vectorLayerItem, sattilateLayerItem, baseLayerItem, vectorBaseLayer = [],
+        sattilateBaseLayer = [],
+        layerType;
+    for (var i = 0, len = mapConfig.vectorLayer.length; i < len; i++) {
+        vectorLayerItem = mapConfig.vectorLayer[i];
+        layerType = vectorLayerItem.layerType
+            .split('.');
+        baseLayerItem = new NPMapLib.Layers[layerType[layerType.length - 1]](
+            vectorLayerItem.layerOpt.url,
+            vectorLayerItem.layerName,
+            vectorLayerItem.layerOpt);
+        vectorBaseLayer.push(baseLayerItem);
+        baseLayer.push(baseLayerItem);
+    }
+    map.addLayers(baseLayer);
+    </script>
+</body>
+
+</html>
