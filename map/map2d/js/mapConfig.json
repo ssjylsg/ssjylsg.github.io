@@ -1,7 +1,7 @@
  {
      "mapOpts": {
          "minZoom": 5,
-         "defaultZoom": 19,
+         "defaultZoom": 10,
          "maxZoom": 22,
          "projection": "EPSG:900913",
          "displayProjection": "EPSG:4326"
@@ -11,7 +11,7 @@
          "layerType": "NPMapLib.Layers.GaoDeLayer",
          "layerOpt": {
              "url": ["http://webrd01.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7", "http://webrd02.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7", "http://webrd03.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7", "http://webrd04.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7"],
-             "centerPoint": [119.93598, 31.79702],
+             "centerPoint": [121.49767733771598,31.185658170907182],
              "isBaseLayer": true,
              "isVectorLayer": true
          }
