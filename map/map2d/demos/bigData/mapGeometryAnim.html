@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>动态数据</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+</head>
+
+<body>
+    <div class="map-id" id="mapId"></div>
+    <link rel="stylesheet" href="/CloundMap/css/dialog.css">
+    <script type="text/javascript" src="/CloundMap/map/Init.js"></script>
+    
+    <script type="text/javascript" src="/CloundMap/js/jquery.js"></script>
+    <script src="/CloundMap/js/dialog.js"></script>
+    <script type="text/javascript" src="/CloundMap/map/extend/ht/core/ht.js"></script>
+    <script type="text/javascript" src="/CloundMap/map/extend/ht/plugin/ht-flow.js"></script>
+    <script type="text/javascript" src="/CloundMap/map/extend/ht/plugin/ht-animation.js"></script>
+    <!-- <script type="text/javascript" src="MapGeometryAnim.js"></script> -->
+    <script type="text/javascript" src="route.js"></script>
+    <script type="text/javascript">
+    var mapConfigResult = {
+        "mapOpts": {
+            "minZoom": 6,
+            "defaultZoom": 11,
+            "maxZoom": 18,
+            "projection": "EPSG:900913",
+            "displayProjection": "EPSG:4326",
+            "restrictedExtent": [-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892]
+        },
+        "vectorLayer": [{
+            "layerName": "shanghaiBaseMap1",
+            "layerType": "NPMapLib.Layers.GaoDeLayer",
+            "layerOpt": {
+                "url": ["http://webrd01.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7",
+                    "http://webrd02.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7",
+                    "http://webrd03.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7",
+                    "http://webrd04.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7"
+                ],
+                "centerPoint": [119.9860728737799, 31.761660319724996],
+                "fullExtent": [-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892],
+                "isBaseLayer": true
+            }
+        }],
+        "sattilateLayer": []
+    };
+
+
+
+    var mapContainer = document.getElementById('mapId');
+    var mapConfig = new MapPlatForm.Base.MapConfig();
+    var resultJson = mapConfig.createMap(mapContainer, mapConfigResult);
+    var map = resultJson.map;
+
+    var mapGeoAnim = new MapPlatForm.Base.MapGeometryAnim(map);
+
+
+    var startPoint = new NPMapLib.Geometry.Point(119.9298567102729, 31.855445258930715);
+    var endPoint = new NPMapLib.Geometry.Point(119.8806686646292, 31.71298407950421);
+
+    var pointOpts = {
+        startColor: '#FF0000',
+        endColor: '#0000FF',
+        size: 20
+    }
+
+    mapGeoAnim.createAnimPoint(startPoint, pointOpts);
+    mapGeoAnim.createAnimPoint(endPoint, pointOpts);
+
+    function buildeLineData() {
+        var line = [];
+        var data = route[0];
+        var length = data.length;
+
+        for (var i = 0; i < length; i++) {
+            var item = data[i];
+
+            var point = new NPMapLib.Geometry.Point(item[0], item[1]);
+
+            line[i] = point;
+        }
+
+        var opts = {
+            flowCount: 5,
+            flowElementBgColor: '#FFFF72',
+            flowElementMax: 7,
+            flowElementMin: 0,
+            flowElementCount: 10,
+            lineBorderWidth: 5,
+            lineBorderColor: '#FF0000',
+            lineDash: true,
+            lineDashColor: '#00FF00',
+            lineDashPattern: [16, 16],
+            lineDash3d: true
+        }
+
+        mapGeoAnim.createAnimLine(line, opts);
+    } 
+    buildeLineData();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>动态数据</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+</head>
+
+<body>
+    <div class="map-id" id="mapId"></div>
+    <link rel="stylesheet" href="/CloundMap/css/dialog.css">
+    <script type="text/javascript" src="/CloundMap/map/Init.js"></script>
+    
+    <script type="text/javascript" src="/CloundMap/js/jquery.js"></script>
+    <script src="/CloundMap/js/dialog.js"></script>
+    <script type="text/javascript" src="/CloundMap/map/extend/ht/core/ht.js"></script>
+    <script type="text/javascript" src="/CloundMap/map/extend/ht/plugin/ht-flow.js"></script>
+    <script type="text/javascript" src="/CloundMap/map/extend/ht/plugin/ht-animation.js"></script>
+    <script type="text/javascript" src="../../../../NPGIS2/Base/MapGeometryAnim.js"></script>
+    <script type="text/javascript" src="busLine.js"></script>
+    <script type="text/javascript">
+    var mapConfigResult = {
+        "mapOpts": {
+            "minZoom": 6,
+            "defaultZoom": 12,
+            "maxZoom": 18,
+            "projection": "EPSG:900913",
+            "displayProjection": "EPSG:4326",
+            "restrictedExtent": [-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892]
+        },
+        "vectorLayer": [{
+            "layerName": "shanghaiBaseMap1",
+            "layerType": "NPMapLib.Layers.BaiduTileLayer",
+            "layerOpt": {
+                "url": ["http://api0.map.bdimg.com/customimage/tile?&x=${x}&y=${y}&z=${z}&udt=20150601&styles=t%3Aland%7Ce%3Ag%7Cc%3A%23303845%2Ct%3Awater%7Ce%3Aall%7Cc%3A%23232931%2Ct%3Agreen%7Ce%3Aall%7Cc%3A%23232931%2Ct%3Aadministrative%7Ce%3Al.t.s%7Cc%3A%231e232a%2Ct%3Ahighway%7Ce%3Aall%7Cv%3Aoff%7Cc%3A%231e232a%7Cw%3A0.1%2Ct%3Alocal%7Ce%3Aall%7Cv%3Aoff%7Cc%3A%231e232a%7Cw%3A0.1%2Ct%3Asubway%7Ce%3Aall%7Cv%3Aoff%7Cw%3A0.1%2Ct%3Arailway%7Ce%3Aall%7Cv%3Aoff%7Cc%3A%231e232a%7Cw%3A0.1%2Ct%3Aroad%7Ce%3Aall%7Cv%3Aon%7Cc%3A%23ffffff%7Cw%3A0.1%2Ct%3Apoi%7Ce%3Aall%7Cv%3Aoff%2Ct%3Amanmade%7Ce%3Aall%7Cv%3Aoff%2Ct%3Aadministrative%7Ce%3Al.t.f%7Cc%3A%2366788f%7Cw%3A0.1%2Ct%3Alabel%7Ce%3Al.t.f%7Cc%3A%2366788f%2Ct%3Aroad%7Ce%3Aall%7Cv%3Aon%7Cc%3A%231a1f24%2Ct%3Aroad%7Ce%3Al.t.f%7Cc%3A%2366788f%2Ct%3Asubway%7Ce%3Al.i%7Cv%3Aoff%7Cc%3A%2366788f%2Ct%3Ahighway%7Ce%3Al.i%7Cv%3Aoff", "http://api1.map.bdimg.com/customimage/tile?&x=${x}&y=${y}&z=${z}&udt=20150601&styles=t%3Aland%7Ce%3Ag%7Cc%3A%23303845%2Ct%3Awater%7Ce%3Aall%7Cc%3A%23232931%2Ct%3Agreen%7Ce%3Aall%7Cc%3A%23232931%2Ct%3Aadministrative%7Ce%3Al.t.s%7Cc%3A%231e232a%2Ct%3Ahighway%7Ce%3Aall%7Cv%3Aoff%7Cc%3A%231e232a%7Cw%3A0.1%2Ct%3Alocal%7Ce%3Aall%7Cv%3Aoff%7Cc%3A%231e232a%7Cw%3A0.1%2Ct%3Asubway%7Ce%3Aall%7Cv%3Aoff%7Cw%3A0.1%2Ct%3Arailway%7Ce%3Aall%7Cv%3Aoff%7Cc%3A%231e232a%7Cw%3A0.1%2Ct%3Aroad%7Ce%3Aall%7Cv%3Aon%7Cc%3A%23ffffff%7Cw%3A0.1%2Ct%3Apoi%7Ce%3Aall%7Cv%3Aoff%2Ct%3Amanmade%7Ce%3Aall%7Cv%3Aoff%2Ct%3Aadministrative%7Ce%3Al.t.f%7Cc%3A%2366788f%7Cw%3A0.1%2Ct%3Alabel%7Ce%3Al.t.f%7Cc%3A%2366788f%2Ct%3Aroad%7Ce%3Aall%7Cv%3Aon%7Cc%3A%231a1f24%2Ct%3Aroad%7Ce%3Al.t.f%7Cc%3A%2366788f%2Ct%3Asubway%7Ce%3Al.i%7Cv%3Aoff%7Cc%3A%2366788f%2Ct%3Ahighway%7Ce%3Al.i%7Cv%3Aoff"],
+                "centerPoint": [108.94937966929062, 34.2651289102875],
+                "fullExtent": [-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892],
+                "isBaseLayer": true
+            }
+        }],
+        "sattilateLayer": []
+    };
+    var mapContainer = document.getElementById('mapId');
+    var mapConfig = new MapPlatForm.Base.MapConfig();
+    var resultJson = mapConfig.createMap(mapContainer, mapConfigResult);
+    var map = resultJson.map;
+
+    var mapGeoAnim = new MapPlatForm.Base.MapGeometryAnim(map);
+
+    function buildeLineData() {
+        var mapGeometry = new MapPlatForm.Base.MapGeometry(map);
+        var opts = {
+            flowCount: 10,
+            flowStep: 4,
+            flowElementSpace: 1,
+            flowElementBgColor: 'rgba(255,255,0,0.6)',
+            flowElementMax: 2,
+            flowElementMin: 0,
+            flowElementCount: 5,
+            lineBorderWidth: 1,
+            lineBorderColor: 'rgba(240, 255, 114, 0.2)',
+            lineDashPattern: [16, 16],
+            lineDash3d: false
+        }
+        for (var i = 0; i < AllBusLines.length; i++) {
+            var line = mapGeometry.getGeometryByGeoJson(AllBusLines[i].geometry);
+            var points = line.getPath();
+            var red = Math.round(Math.random() * 255);
+            opts.flowElementBgColor = 'rgba(' + red + ', 255, 114, 0.6)';
+            opts.lineBorderColor = 'rgba(' + red + ', 255, 114, 0.2)';
+            mapGeoAnim.createAnimLine(points, opts);
+        }
+    }
+
+    buildeLineData();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>地图生成</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+</head>
+
+<body>
+    <div class="map-id" id="mapId"></div>
+    <div class="map-convert ">
+        <div class="mapTypeCard map-vector"></div>
+    </div>    
+    <script src="https://cdn.bootcss.com/require.js/2.3.5/require.min.js" data-main="../../../../app/main"></script>
+    <script type="text/javascript">
+    require(['app'], function(app) {
+        app.createMap();
+    })
+    </script>
+</body>
+
+</html>

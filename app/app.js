@@ -1,4 +1,10 @@
-define(['jquery', 'map2d', 'mapConfig'], function($, NPMAP, mapConfig) {	
+define(['jquery', 'map2d', 'mapConfig', 'bootstrap', 'bootstrap-dialog','noModel',
+	'jquery.mCustomScrollbar',
+	'jquery.mousewheel.min'
+
+
+	], function($, NPMAP, mapConfig,
+	bootstrap, BootstrapDialog,noModel,mCustomScrollbar,mousewheel) {
 	var map;
 	var clMap = function(mapContainer = 'mapId') {
 		var temp = mapContainer;
@@ -27,12 +33,36 @@ define(['jquery', 'map2d', 'mapConfig'], function($, NPMAP, mapConfig) {
 
 	};
 	var mapTool = function(mapTools) {
-		registerDemoInstructions({
-			title: "扩展组件工具类",
-			height: "150",
-			width: "250",
-			position: [0, 0], //["right",60],
-			modal: false,
+		$.noModel({
+            id: "12345",
+            title: "测试noModel弹层",
+            content: "<h1>noModel的内容</h1>",
+            width: 600,
+            height: 500,
+            isHideBut: false,
+            singleButtons: [{
+                name: "关闭哈哈",
+                order: 2,
+                halign: "right",
+                isDisabled: true,
+                params: "",
+                callback: function(btnObj) {
+                    return true;
+                }
+            }, {
+                name: "提交",
+                order: 1,
+                halign: "right",
+                isDisabled: false,
+                params: "你好",
+                callback: function(btnObj) {
+                    alert(btnObj);
+                    return false;
+                }
+            }]
+        });
+        return;
+		var opts = {
 			buttons: {
 				"量距": function() {
 					mapTools.measureDistance();
@@ -86,9 +116,26 @@ define(['jquery', 'map2d', 'mapConfig'], function($, NPMAP, mapConfig) {
 					mapTools.removeCircleSearchControl();
 				}
 			}
-		});
+		}		
+		var targetOpts = {
+			type: BootstrapDialog.TYPE_INFO,
+			size: BootstrapDialog.SIZE_NORMAL,
+			title: '扩展组件工具类 ',
+			draggable:true,
+			message: '',
+			modal: false,
+			size: BootstrapDialog.SIZE_NORMAL, //size为小，默认的对话框比较宽
+			buttons: []
+		};
 
-		//$("#ui-dialog");
+		for (var k in opts.buttons) {
+			targetOpts.buttons.push({
+				label: k,
+				action: opts.buttons[k]
+			})
+		}
+
+		BootstrapDialog.show(targetOpts);
 	}
 	return {
 		createMap: clMap,

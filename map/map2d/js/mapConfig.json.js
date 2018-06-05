@@ -1,8 +1,8 @@
 define([], function() {
 	return {
 		"mapOpts": {
-			"minZoom": 5,
-			"defaultZoom": 10,
+			"minZoom": 11,
+			"defaultZoom": 11,
 			"maxZoom": 22,
 			"projection": "EPSG:900913",
 			"displayProjection": "EPSG:4326"

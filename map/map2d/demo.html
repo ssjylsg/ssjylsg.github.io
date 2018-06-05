@@ -1,0 +1,38 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>东方网力 地图API-首页</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <link href="https://cdn.bootcss.com/zTree.v3/3.5.33/css/zTreeStyle/zTreeStyle.min.css" rel="stylesheet">
+</head>
+
+<body class="main-body">
+    <div class="gis-container">
+        <div class="gis-top" id="gisTop">
+            <ul class="top-nav">
+                <li class="logo"><img src="images/地图api.png" /></li>
+            </ul>
+        </div>
+        <div id="content">
+            <div class="left demo-tree" id="demoTree">
+                <ul class="ztree" id="ztree1"></ul>
+            </div>
+            <div class="demo-container">
+                <iframe id="demoIframe" class="demo-iframe" frameborder="no" marginheight="0" marginwidth="0"></iframe>
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+    <script src="https://cdn.bootcss.com/require.js/2.3.5/require.min.js" data-main="../../app/main"></script>
+    <script type="text/javascript">
+    require(['head','demotree'], function(head,demotree) {
+        
+        head.init();
+        demotree.init();
+    })
+    </script>
+</body>
+
+</html>

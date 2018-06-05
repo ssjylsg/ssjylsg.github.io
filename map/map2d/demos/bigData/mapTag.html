@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>地图生成</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+</head>
+
+<body>
+    <div class="map-id" id="mapId"></div>
+    <link rel="stylesheet" href="/CloundMap/css/dialog.css">
+    <script type="text/javascript" src="/CloundMap/map/Init.js"></script>
+    
+    <script type="text/javascript" src="/CloundMap/js/jquery.js"></script>
+    
+    <script src="/CloundMap/js/dialog.js"></script>
+    
+    <script type="text/javascript">
+    var mapTag
+    $.getJSON('/CloundMap/map/mapConfig.json', mapConfigResult => {
+        var mapContainer = document.getElementById('mapId');
+        var mapConfig = new MapPlatForm.Base.MapConfig();
+        var resultJson = mapConfig.createMap(mapContainer, mapConfigResult);
+        var map = resultJson.map;
+        mapTag = new MapPlatForm.Base.MapTag(map);
+    })
+    </script>
+    <script type="text/javascript">
+    $(function() {
+        //注册操作说明
+        registerDemoInstructions({
+            title: "扩展组件标注类",
+            height: "150",
+            width: "250",
+            position: [0, 0], //["right",60],
+            modal: false,
+            buttons: {
+                "添加标注": function() {
+                    var markerParam = {
+                        url: "../../images/Flag.png", //图片路径 
+                        size: { //[图片大小] 
+                            width: 32,
+                            height: 32
+                        },
+                        markerType: 1 //以中心点为中心0，以底部为中心1,自定义位置2，根据iconOffset设置中心点
+                    };
+                    mapTag.adrawMarker(markerParam, function(marker) {
+                        console.log(marker.getPosition());
+                    });
+                },
+                "取消标准": function() {
+                    mapTag.delAdrawMarker();
+                }
+            }
+        });
+    });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>地图生成</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+</head>
+
+<body>
+    <div class="map-id" id="mapId"></div>
+    <link rel="stylesheet" href="/CloundMap/css/dialog.css">
+    <script type="text/javascript" src="/CloundMap/map/Init.js"></script>
+    
+    <script type="text/javascript" src="/CloundMap/js/jquery.js"></script>
+    
+    <script src="/CloundMap/js/dialog.js"></script>
+    
+    <script type="text/javascript">
+    var mapConfigResult =  {
+         "mapOpts": {
+             "minZoom": 9,
+             "defaultZoom": 12,
+             "maxZoom": 18,
+             "projection": "EPSG:900913",
+             "displayProjection": "EPSG:4326"
+         },
+         "vectorLayer": [{
+             "layerName": "shanghaiBaseMap1",
+             "layerType": "NPMapLib.Layers.GaoDeLayer",
+             "layerOpt": {
+                 "url": ["http://webrd01.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7", "http://webrd02.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7", "http://webrd03.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7", "http://webrd04.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7"],
+                 "centerPoint": [108.93501890630459,34.264712994029445],
+                 "isBaseLayer": true
+             }
+         }],
+         "sattilateLayer": []
+     }
+    var mapContainer = document.getElementById('mapId');
+    var mapConfig = new MapPlatForm.Base.MapConfig();
+    var resultJson = mapConfig.createMap(mapContainer, mapConfigResult);
+    var map = resultJson.map;
+    var mapService = new MapPlatForm.Base.MapService(map);
+    var mapGeometry = new MapPlatForm.Base.MapGeometry(map);
+    </script>
+    <script type="text/javascript">
+    $(function() {
+        //注册操作说明
+        registerDemoInstructions({
+            title: "扩展组件工具类",
+            height: "300",
+            width: "250",
+            position: [0, 0], //["right",60],
+            content:"<div id='resultDom' style='width:100%;height:100%'></div>",
+            modal: false,
+            buttons: {
+                "查询道路": function() {
+                    mapService.queryRoadByName("fn", function(res) {
+                        var restrictLength = res.length > 10 ? 10 : res.length;
+                        $("#resultDom").empty();
+                        for (var i = 0; i < restrictLength; i++) {
+                            $("#resultDom").append("<li class='road' data-value="+i+">" +(i + 1)+"." + res[i].name+"</li>");
+                        }
+                        $(".road").off("click").on("click",function(){
+                            var index = $(this).data("value");
+                            map.getDefaultLayer().removeAllOverlays();
+                            for (var i = res[index].geometry.length - 1; i >= 0; i--) {
+                                res[index].geometry[i].setStyle({
+                                    weight:5,
+                                    color:"red"
+                                });
+                                map.addOverlay(res[index].geometry[i]);
+                            }
+                            var extent = mapGeometry.getExtentByOverlays(res[index].geometry);
+                            map.zoomToExtent(extent);
+                        });
+                    });
+                },
+                "查询兴趣点": function() {
+                    mapService.queryPOIByName("酒店", function(res) {
+                        $("#resultDom").empty();
+                        var restrictLength = res.length > 10 ? 10 : res.length;
+                        for (var i = 0; i < restrictLength; i++) {
+                            $("#resultDom").append("<li class='POI' data-value="+i+">" +(i + 1)+"." + res[i].data.name+"</li>");
+                        }
+                        $(".POI").off("click").on("click",function(){
+                            var index = $(this).data("value");
+                            map.getDefaultLayer().removeAllOverlays();
+                            var marker = mapGeometry.createMarker(res[index],{
+                                url: "../../images/Flag.png",
+                                size: {
+                                    width: 32,
+                                    height: 32
+                                },
+                                markerType: 0
+                            });
+                            map.addOverlay(marker);
+                            map.setCenter(res[index]);
+                        });
+                    });                },
+                "查询路口": function() {
+                    mapService.queryRoadCrossByName("fn", function(res) {
+                        $("#resultDom").empty();
+                        var restrictLength = res.length > 10 ? 10 : res.length;
+                        for (var i = 0; i < restrictLength; i++) {
+                            $("#resultDom").append("<li class='cross' data-value="+i+">" +(i + 1)+"." + res[i].data.name+"</li>");
+                        }
+                        $(".cross").off("click").on("click",function(){
+                            var index = $(this).data("value");
+                            map.getDefaultLayer().removeAllOverlays();
+                            var marker = mapGeometry.createMarker(res[index],{
+                                url: "../../images/Flag.png",
+                                size: {
+                                    width: 32,
+                                    height: 32
+                                },
+                                markerType: 0
+                            });
+                            map.addOverlay(marker);
+                            map.setCenter(res[index]);
+                        });
+                    });  
+                },
+                "逆地址查询": function() {
+                    var point = new NPMapLib.Geometry.Point(108.93501890630459,34.264712994029445);
+                    mapService.queryPOIByCoord(point, function(result) {
+                        $("#resultDom").text("输出结果：" + result.data.name);
+                        map.getDefaultLayer().removeAllOverlays();
+                        var marker = mapGeometry.createMarker(result,{
+                            url: "../../images/Flag.png",
+                            size: {
+                                width: 32,
+                                height: 32
+                            },
+                            markerType: 0
+                        });
+                        map.addOverlay(marker);
+                        map.setCenter(result);
+                    });
+                },
+                "全要素查询": function() {
+                     $("#resultDom").empty();
+                    mapService.queryAllFeaturesByName("fn", function(res) {
+                        var restrictLength = res.length > 10 ? 10 : res.length;
+                        for (var i = 0; i < restrictLength; i++) {
+                            $("#resultDom").append("<li class='feature' data-value="+i+">" +(i + 1)+"." + res[i].name+"</li>");
+                        }
+                        $(".feature").off("click").on("click",function(){
+                            var index = $(this).data("value");
+                            map.getDefaultLayer().removeAllOverlays();
+                            // res[index].setStyle({
+                            //     weight:5,
+                            //     color:"red"
+                            // });
+                            if(res[index].type === "road"){
+                                map.addOverlays(res[index].geometry);
+                                var extent = mapGeometry.getExtentByOverlays(res[index].geometry);
+                                map.zoomToExtent(extent);
+                            }else{
+                                var marker = mapGeometry.createMarker(res[index].geometry,{
+                                    url: "../../images/Flag.png",
+                                    size: {
+                                        width: 32,
+                                        height: 32
+                                    },
+                                    markerType: 0
+                                });
+                                map.addOverlay(marker);
+                                map.setCenter(res[index].geometry,map.getMaxZoom());
+                            }
+                        });
+                    });
+                },
+                "路径规划": function() {
+                    var paramsTemp = {
+                        startStop: new NPMapLib.Geometry.Point(108.93501890630459,34.264712994029445),
+                        endStop: new NPMapLib.Geometry.Point(108.97761630995035,34.21850759318498),
+                        trafficModel: "car",
+                        planRoadType: 1
+                    };
+                    map.getDefaultLayer().removeAllOverlays();
+                    mapService.searchRouteByCoor(paramsTemp, function(res) {
+                        $("#resultDom").empty();
+                        var geojson = res.routelatlon;
+                        RoutePolyline = mapGeometry.getGeometryByGeoJson(geojson)[0];
+                        RoutePolyline.setStyle({color:"red",weight: 3});
+                        map.addOverlay(RoutePolyline);
+                        var startmarker = mapGeometry.createMarker(paramsTemp.startStop,{
+                            url: "../../images/map-marker-start.png",
+                            size: {
+                                width: 32,
+                                height: 32
+                            },
+                            markerType: 0
+                        });
+                        map.addOverlay(startmarker);
+                        var endmarker = mapGeometry.createMarker(paramsTemp.endStop,{
+                            url: "../../images/map-marker-end.png",
+                            size: {
+                                width: 32,
+                                height: 32
+                            },
+                            markerType: 0
+                        });
+                        map.addOverlay(endmarker);
+                        map.zoomToExtent(RoutePolyline.getExtent());
+                        var result = "";
+                        for (var i=0,len = res.messages.segments.length - 1; i<len; i++) {
+                            $("#resultDom").append("<li class='cross' data-value="+i+">" +(i + 1)+"." + res.messages.segments[i].strguide+"</li>");
+                        }
+                    });
+                }
+            }
+        });
+    });
+    </script>
+</body>
+
+</html>

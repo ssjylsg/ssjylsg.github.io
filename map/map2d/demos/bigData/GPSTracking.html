@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+</head>
+<body>
+    <div class="map-id" id="mapId">
+    </div>
+    <link rel="stylesheet" type="text/css" href="../../css/main.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/rescorce-code.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/shCore.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/shThemeDefault.css" />
+    <link rel="stylesheet" href="../../css/dialog.css">
+
+    <script type="text/javascript" src="../../../../v1.0/Init.js"></script>
+
+    <script type="text/javascript" src="../../js/jquery.js"></script>
+
+    <script type="text/javascript" src="../../js/allScript.js"></script>
+
+    <script type="text/javascript" src="../../js/resource-code.js"></script>
+
+    <script src="../../js/dialog.js"></script>
+
+    <script type="text/javascript" src="../../js/NpgisFactory.js"></script>
+	<script type="text/javascript">
+	    //地图控件
+	    var map = new NPMapLibMapProxy().createMap();
+	    var layer = new NPMapLib.Layers.OverlayLayer("xasas");
+        	map.addLayer(layer);
+        var center=new NPMapLib.Geometry.Point(121.36444957972,31.176553055407);
+        map.setCenter(center,2);
+        var points=[];
+        var strPoints="121.279,31.2712,121.2838,31.2706,121.2875,31.2701,121.2891,31.2699,121.2895,31.2698,121.2906,31.2697,121.2967,31.2689,121.3013,31.2683,121.3019,31.2682,121.3031,31.268,121.3045,31.2679,121.3144,31.2666,121.3161,31.2663,121.3164,31.2645,121.3164,31.2635,121.3162,31.2614,121.316,31.2572,121.3158,31.2535,121.3158,31.2515,121.3158,31.2486,121.3159,31.2458,121.3159,31.2431,121.3159,31.2402,121.3159,31.2376,121.316,31.2348,121.3201,31.2349,121.3211,31.2324,121.3223,31.2291,121.3232,31.2265,121.3235,31.2258,121.3233,31.2254,121.3233,31.225,121.3231,31.2243,121.3229,31.2226,121.3227,31.2202,121.3227,31.2198,121.3227,31.2196,121.3227,31.2193,121.3227,31.2189,121.3227,31.2186,121.3228,31.2183,121.3228,31.2179,121.3229,31.2174,121.3229,31.217,121.3229,31.2162,121.3229,31.2139,121.3229,31.2131,121.3239,31.2133,121.3267,31.2137,121.3279,31.2139,121.3289,31.214,121.3301,31.214,121.3358,31.2142,121.3368,31.2142,121.3377,31.2141,121.3387,31.2139,121.3396,31.2137,121.3401,31.2135,121.342,31.2127,121.3434,31.212,121.3437,31.2119,121.3439,31.2119,121.3442,31.2118,121.3445,31.2117,121.3448,31.2117,121.3451,31.2116,121.3455,31.2116,121.3462,31.2115,121.3522,31.2111,121.3547,31.2109,121.3581,31.2107,121.3589,31.2082,121.3592,31.2082,121.3598,31.2081,121.3598,31.208,121.3609,31.2078,121.3618,31.2076,121.3619,31.2075,121.362,31.2074,121.363,31.2066,121.3634,31.2063,121.3632,31.2061,121.3634,31.2058,121.3636,31.2055,121.3639,31.2053,121.3642,31.2051,121.3652,31.2046,121.3673,31.2038,121.3692,31.203,121.3684,31.2011,121.3751,31.1999,121.3755,31.1998,121.3759,31.1997,121.3762,31.1994,121.3764,31.1991,121.3775,31.1975,121.3798,31.1941,121.38,31.1938,121.3806,31.1929,121.3816,31.1913,121.3822,31.1904,121.3833,31.1891,121.3843,31.188,121.3849,31.1873,121.3855,31.1864,121.3886,31.1819,121.3892,31.1809,121.3894,31.1807,121.3896,31.1803,121.3898,31.1799,121.3898,31.1797,121.3901,31.1788,121.3906,31.1772,121.3911,31.1755,121.3912,31.1752,121.3913,31.175,121.3928,31.1724,121.3932,31.1725,121.3938,31.1712,121.3942,31.1705,121.3946,31.1698,121.3951,31.1689,121.3961,31.1673,121.3967,31.1664,121.3971,31.1656,121.3976,31.1649,121.3978,31.1645,121.398,31.1641,121.399,31.1618,121.3997,31.1601,121.4011,31.1567,121.4022,31.154,121.4031,31.152,121.4034,31.1513,121.4046,31.1486,121.4057,31.1454,121.406,31.1448,121.4064,31.1439,121.407,31.1426,121.407,31.1426,121.4086,31.1403,121.409,31.1396,121.4097,31.1387,121.4108,31.1371,121.412,31.1358,121.4131,31.1344,121.4138,31.1335,121.4156,31.1309,121.4182,31.1272,121.4196,31.1251,121.4207,31.1236,121.421,31.1228,121.4212,31.1224,121.4213,31.122,121.4214,31.1218,121.4218,31.1205,121.422,31.1199,121.4226,31.1183,121.4235,31.1157,121.4245,31.1125,121.4254,31.11,121.427,31.1054,121.4285,31.101,121.4298,31.0976,121.4309,31.0947,121.4314,31.0933,121.432,31.0916,121.4323,31.0909,121.4326,31.0902,121.4343,31.0856,121.4353,31.083,121.4353,31.083,121.436,31.0811";
+        var strPointArry=strPoints.split(',');
+        for(var i=0;i<strPointArry.length;i=i+2){
+            var tp=new NPMapLib.Geometry.Point(strPointArry[i]*1.0,strPointArry[i+1]*1.0);
+            points.push(tp);
+        }
+        var tempPoints=[];
+        tempPoints.push(points[0]);
+        var index=0;
+        
+        //var line = new NPMapLib.Geometry.Polyline(points);
+        var offset = new NPMapLib.Geometry.Size(0, -16);
+        var headerMarker = new NPMapLib.Symbols.Marker(points[0],{offset:offset});
+        var icon = new NPMapLib.Symbols.Icon("../../images/gps.gif",new NPMapLib.Geometry.Size(32,32));
+        headerMarker.setIcon(icon);
+                //多段线
+        var polyline = new NPMapLib.Geometry.Polyline(tempPoints, {
+                color: "blue", //颜色
+                weight: 5,  //宽度，以像素为单位
+                opacity: 0.5, //透明度，取值范围0 - 1
+                lineStyle: 'shortdashdotdot'    //样式
+            }
+        );
+        map.addOverlay(polyline);
+        map.addOverlay(headerMarker);
+        addPoint();
+        function addPoint(){
+            index++;
+            if(index<points.length){
+                headerMarker.setPosition(points[index]);
+                polyline.addPoint(points[index]);
+                window.setTimeout(addPoint, 1000);
+            }
+        }
+	</script>
+</body>
+</html>

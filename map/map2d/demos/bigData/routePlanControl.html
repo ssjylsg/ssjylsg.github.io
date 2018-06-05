@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>途经点拖拽</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+</head>
+
+<body>
+    <div class="map-id" id="mapId"></div>
+     <link rel="stylesheet" href="/CloundMap/css/dialog.css">
+    <script type="text/javascript" src="/CloundMap/map/Init.js"></script>
+    
+    <script type="text/javascript" src="/CloundMap/js/jquery.js"></script>
+    
+    <script src="/CloundMap/js/dialog.js"></script>
+    
+    <script type="text/javascript">
+    var mapConfigResult =  {
+         "mapOpts": {
+             "minZoom": 9,
+             "defaultZoom": 12,
+             "maxZoom": 18,
+             "projection": "EPSG:900913",
+             "displayProjection": "EPSG:4326"
+         },
+         "vectorLayer": [{
+             "layerName": "shanghaiBaseMap1",
+             "layerType": "NPMapLib.Layers.GaoDeLayer",
+             "layerOpt": {
+                 "url": ["http://webrd01.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7", "http://webrd02.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7", "http://webrd03.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7", "http://webrd04.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7"],
+                 "centerPoint": [108.93501890630459,34.264712994029445],
+                 "isBaseLayer": true
+             }
+         }],
+         "sattilateLayer": []
+     }
+    var mapContainer = document.getElementById('mapId');
+    var mapConfig = new MapPlatForm.Base.MapConfig();
+    var resultJson = mapConfig.createMap(mapContainer, mapConfigResult);
+    var map = resultJson.map;
+    var mapService = new MapPlatForm.Base.MapService(map);
+    var mapGeometry = new MapPlatForm.Base.MapGeometry(map);
+    var paramsTemp = {
+        startStop: new NPMapLib.Geometry.Point(108.93501890630459,34.264712994029445),
+        endStop: new NPMapLib.Geometry.Point(108.97761630995035,34.21850759318498),
+        trafficModel: "car",
+        planRoadType: 1
+    };
+    var layer = new NPMapLib.Layers.OverlayLayer("xx");
+    map.addLayer(layer);
+    startmarker = mapGeometry.createMarker(paramsTemp.startStop,{
+        url: "/CloundMap/images/map-marker-start.png",
+        size: {
+            width: 32,
+            height: 32
+        },
+        markerType: 0
+    });
+    layer.addOverlay(startmarker);
+    // var polyline = new NPMapLib.Geometry.Polyline([new NPMapLib.Geometry.Point(121.53085735131602,31.21357759122147),new NPMapLib.Geometry.Point(121.41704320321816,31.145765590053113)]);
+    startmarker.enableEditing();
+    startmarker.addEventListener(NPMapLib.MARKER_EVENT_DRAG_END,function(){
+        routePlan.addRoutePlanControl({
+            planRoadType:1,
+            startMarker:startmarker,
+            endMarker:endmarker
+        },function(res){
+            console.log(res);
+        },function(){
+            alert("没有合适路径");
+        });
+    });
+    endmarker = mapGeometry.createMarker(paramsTemp.endStop,{
+        url: "/CloundMap/images/map-marker-end.png",
+        size: {
+            width: 32,
+            height: 32
+        },
+        markerType: 0
+    });
+    layer.addOverlay(endmarker);
+    endmarker.enableEditing();
+    endmarker.addEventListener(NPMapLib.MARKER_EVENT_DRAG_END,function(){
+        routePlan.addRoutePlanControl({
+            planRoadType:1,
+            startMarker:startmarker,
+            endMarker:endmarker
+        },function(res){
+            console.log(res);
+        },function(){
+            alert("没有合适路径");
+        });
+    });
+    routePlan = new MapPlatForm.Base.MapRoutePlan(map,layer);
+    routePlan.addRoutePlanControl({
+        //polyline: polyline,
+        planRoadType:1,
+        startMarker:startmarker,
+        endMarker:endmarker
+    },function(res){
+        console.log(res);
+    },function(){
+        alert("没有合适路径");
+    });
+    </script>
+</body>
+
+</html>

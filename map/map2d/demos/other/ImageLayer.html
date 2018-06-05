@@ -1,0 +1,37 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>图片地图</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+</head>
+
+<body>
+    <div class="map-id" id="mapId"></div>
+    <script type="text/javascript" src="/CloundMap/map/Init.js"></script>
+    
+    <script type="text/javascript" src="/CloundMap/js/jquery.js"></script>
+    <script src="/CloundMap/js/dialog.js"></script>
+    <script type="text/javascript">
+    var map;
+    $.getJSON('/CloundMap/map/mapConfig.json', mapConfigResult => {
+        var mapContainer = document.getElementById('mapId');
+        var tool = new MapPlatForm.Base.MapConfig();
+        var resultJson = tool.createMap(mapContainer, mapConfigResult);
+        map = resultJson.map;
+
+        url = '/CloundMap/images/新校区环境设计图.gif';
+        var imageLayer = new NPMapLib.Layers.ImageLayer(url, '图片', {
+            size: [5418, 5758],
+            fullExtent: [111.83706789832817, 40.890245729793264, 111.84939315884188, 40.900759041292815],
+            isBaseLayer: false,
+            maxResolution: 32
+        });
+        map.addLayer(imageLayer);      
+        map.setCenter({ lon: 111.84317486367877, lat: 40.89564403791414 }, 16)
+    });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>聚合信息</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+</head>
+
+<body>
+    <div class="map-id" id="mapId">
+    </div>
+    <link rel="stylesheet" href="/CloundMap/css/dialog.css">
+    <script type="text/javascript" src="/CloundMap/map/Init.js"></script>
+    <script type="text/javascript" src="/CloundMap/js/jquery.js"></script>
+    <script src="/CloundMap/js/dialog.js"></script>
+    <script type="text/javascript" src="resourceData.js"></script>
+    <script type="text/javascript">
+    var map;
+    $.getJSON('/CloundMap/map/mapConfig.json', mapConfigResult => {
+        var mapContainer = document.getElementById('mapId');
+        var mapConfig = new MapPlatForm.Base.MapConfig();
+        mapConfigResult.mapOpts.defaultZoom = 11;
+        var resultJson = mapConfig.createMap(mapContainer, mapConfigResult);
+        map = resultJson.map;
+        map.setCenter({ lon: 114.16923933052482, lat: 22.680326987837635 }, 11);
+        var points = [];
+        var gpsPoints = [];
+        for (var i = 0; i < data.length / 2; i++) {
+            var r = data[i];
+            var rs = r.split(',');
+            var lon = rs[0];
+            var lat = rs[1];
+            var types = rs[2].split(';');
+            var type = types.length > 1 ? types[1] : null;
+            if (type == '4') {
+                type = '3';
+            }
+            var p = new NPMapLib.Symbols.ClusterMarker({
+                lon: lon,
+                lat: lat,
+                type: type,
+                id: i
+            }, {
+                markType: types[0]
+            });
+            if (types[0] === "GPS") {
+                gpsPoints.push(p);
+                continue;
+            }
+            p.dragstart = function(f) {
+                console.log(f);
+            };
+            p.dragend = function(f) {
+                console.log(f);
+            };
+            points.push(p);
+        }
+
+        var clusterPoints = new NPMapLib.Symbols.ClusterPoints(points);
+        var overlay;
+        var opt = {
+            getUrl: function(count, p) {
+                if (count) {
+                    if (p.markType == "FID") {
+                        return "/CloundMap/images/rfid_normal.png"
+                    } else if (p.markType == "camera") {
+                        return "/CloundMap/images/camera_normal.png"
+                    } else if (p.markType == "gate") {
+                        return "/CloundMap/images/bayonet_normal.png"
+                    } else if (p.markType == "wifi") {
+                        return "/CloundMap/images/wifi_normal.png"
+                    } else if (p.markType == "GPS") {
+                        return "/CloundMap/images/policeman_normal.png"
+                    }
+                    console.log(p.markType)
+                } else {
+                    if (p.markType == "FID") {
+                        return "/CloundMap/images/rfid_normal.png"
+                    } else if (p.markType == "camera") {
+                        if (p.getData().active) {
+                            return "/CloundMap/images/camera_active.png"
+                        }
+                        return "/CloundMap/images/camera_normal.png"
+                    } else if (p.markType == "gate") {
+                        return "/CloundMap/images/bayonet_normal.png"
+                    } else if (p.markType == "wifi") {
+                        return "/CloundMap/images/wifi_normal.png"
+                    } else if (p.markType == "GPS") {
+                        return "/CloundMap/images/policeman_normal.png"
+                    }
+                    console.log(p.markType)
+                }
+
+            },
+            getContent: function(f) {
+                if (f.attributes.count < 2) {
+                    return "";
+                }
+                return f.attributes.count;
+            },
+            getImageSize: function(count, p) {
+                if (count) {
+                    return {
+                        width: 24,
+                        height: 24
+                    };
+                } else {
+                    return {
+                        width: 24,
+                        height: 24
+                    };
+                }
+            },
+            clusterClickModel: 'zoom',
+            click: function(f) {
+
+            },
+            //设置聚合的文案背景颜色
+            getClusterBGColor: function(data) {
+                if (data.markType == "FID") {
+                    return "#c7a80d";
+                } else if (data.markType == "camera") {
+                    return "#2d87f9";
+                } else if (data.markType == "gate") {
+                    return "#2ec623";
+                } else if (data.markType == "wifi") {
+                    return "#16c9d6";
+                } else if (data.markType == "GPS") {
+                    return "#924993";
+                }
+            },
+            getBackGroundColor: function(data) {
+                if (data.markType == "FID") {
+                    return "#c7a80d";
+                } else if (data.markType == "camera") {
+                    return "#2d87f9";
+                } else if (data.markType == "gate") {
+                    return "#2ec623";
+                } else if (data.markType == "wifi") {
+                    return "#16c9d6";
+                } else if (data.markType == "GPS") {
+                    return "#924993";
+                }
+            },
+            //设置聚合的文案背景边框颜色
+            getClusterBGStroke: function(data) {
+                return "#e6ebef";
+            },
+            //设置非聚合的文案背景边框颜色
+            getBackGroundStroke: function(data) {
+                return "#e6ebef";
+            },
+            getCustomLabelOffset: function() {
+                return {
+                    width: 10,
+                    height: 20
+                }
+            },
+            mouseover: function(f) {
+                var color = "";
+                if (f.markType == "FID") {
+                    color = "#c7a80d";
+                } else if (f.markType == "camera") {
+                    color = "#2d87f9";
+                } else if (f.markType == "gate") {
+                    color = "#2ec623";
+                } else if (f.markType == "wifi") {
+                    color = "#16c9d6";
+                } else if (f.markType == "GPS") {
+                    color = "#924993";
+                }
+                f.changeStyle({
+                    label: "我是" + f.markType.toUpperCase(),
+                    labelYOffset: 28,
+                    labelBackgroundColor: color,
+                    labelBackGroundRXY: 2,
+                    labelBackGroundMargin: 5,
+                    showArrow: true,
+                    labelBackGroundStroke: "#e6ebef"
+                }, true);
+            },
+            mouseout: function(f) {
+                f.changeStyle({
+                    label: ""
+                }, true);
+            },
+            showOrHideArrow: function(count, f) {
+                if (count) {
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            isAsynchronous: false,
+            labelYOffset: 28,
+            labelBackGroundRXY: 3,
+            labelBackGroundMargin: 5,
+            distance: 200,
+            maxZoom: 20,
+            threshold: 2
+        };
+        // 聚合图层 为点击聚合点位时 进行撒点
+        overlayLayer = new NPMapLib.Layers.OverlayLayer('聚合图层', true, opt);
+        map.addLayer(overlayLayer);
+        overlayLayer.addOverlay(clusterPoints);
+    });
+    </script>
+    <script type="text/javascript">
+    $(function() {
+        window.showOrHidCamera = function(checkbox) {
+            if (checkbox.checked) {
+                if (checkbox.value == "camera1") {
+                    for (var i = 0; i < points.length; i++) {
+                        if (points[i].markType == "camera" && points[i].getData().type == "1") {
+                            points[i].setVisible(true);
+                        }
+                    }
+                } else if (checkbox.value == "camera2") {
+                    for (var i = 0; i < points.length; i++) {
+                        if (points[i].markType == "camera" && points[i].getData().type == "2") {
+                            points[i].setVisible(true);
+                        }
+                    }
+                } else if (checkbox.value == "camera3") {
+                    for (var i = 0; i < points.length; i++) {
+                        if (points[i].markType == "camera" && points[i].getData().type == "3") {
+                            points[i].setVisible(true);
+                        }
+                    }
+                }
+            } else {
+                if (checkbox.value == "camera1") {
+                    for (var i = 0; i < points.length; i++) {
+                        if (points[i].markType == "camera" && points[i].getData().type == "1") {
+                            points[i].setVisible(false);
+                        }
+                    }
+                } else if (checkbox.value == "camera2") {
+                    for (var i = 0; i < points.length; i++) {
+                        if (points[i].markType == "camera" && points[i].getData().type == "2") {
+                            points[i].setVisible(false);
+                        }
+                    }
+                } else if (checkbox.value == "camera3") {
+                    for (var i = 0; i < points.length; i++) {
+                        if (points[i].markType == "camera" && points[i].getData().type == "3") {
+                            points[i].setVisible(false);
+                        }
+                    }
+                }
+            }
+            // if(map.getZoom()<opt.maxZoom){
+            overlayLayer.refresh();
+            // }
+        };
+        window.showOrHideResource = function(checkbox) {
+            if (checkbox.checked) {
+                if (checkbox.value == "gate") {
+                    overlayLayer.setMakrerTypeVisiable('gate', true);
+                } else if (checkbox.value == "rfid") {
+                    overlayLayer.setMakrerTypeVisiable('FID', true);
+                } else if (checkbox.value == "wifi") {
+                    overlayLayer.setMakrerTypeVisiable('wifi', true);
+                } else if (checkbox.value == "GPS") {
+                    if (typeof(overlayLayer.isShowMarkType("GPS")) == "undefined") {
+                        overlayLayer.addClusters(gpsPoints);
+                        overlayLayer.setMakrerTypeVisiable('GPS', true);
+                        overlayLayer.refresh();
+                    } else {
+                        overlayLayer.setMakrerTypeVisiable('GPS', true);
+                    }
+                }
+            } else {
+                if (checkbox.value == "gate") {
+                    overlayLayer.setMakrerTypeVisiable('gate', false);
+                } else if (checkbox.value == "rfid") {
+                    overlayLayer.setMakrerTypeVisiable('FID', false);
+                } else if (checkbox.value == "wifi") {
+                    overlayLayer.setMakrerTypeVisiable('wifi', false);
+                } else if (checkbox.value == "GPS") {
+                    overlayLayer.setMakrerTypeVisiable('GPS', false);
+                }
+            }
+        }
+
+        window.activeCamera = function() {
+            var id = 162990;
+            var markers = overlayLayer.getOverlaysByProperty("id", id);
+            if (markers.length > 0) {
+                var marker = markers[0];
+                if (marker._apiObj) {
+                    marker.changeStyle({
+                        externalGraphic: "/CloundMap/images/camera_active.png"
+                    }, true);
+                }
+                marker.getData().active = true;
+                map.setCenter(marker.getPosition(), map.getMaxZoom());
+            }
+        }
+
+        window.disactiveCamera = function() {
+            var id = 162990;
+            var markers = overlayLayer.getOverlaysByProperty("id", id);
+            if (markers.length > 0) {
+                var marker = markers[0];
+                if (marker._apiObj) {
+                    marker.changeStyle({
+                        externalGraphic: "/CloundMap/images/camera_normal.png"
+                    }, true);
+                }
+                marker.getData().active = false;
+                map.setCenter(marker.getPosition(), map.getMaxZoom());
+            }
+        }
+        //注册操作说明
+        registerDemoInstructions({
+            title: "多资源聚合展示",
+            height: "290",
+            width: "250",
+            position: [0, 0], //["right",60],
+            modal: false,
+            content: "<input type='checkbox' value='camera1' checked='true' onclick='showOrHidCamera(this)'>摄像机（人脸）</input><br></br><input type='checkbox' value='camera2' checked='true'  onclick='showOrHidCamera(this)'>摄像机（人体）</input><br></br><input type='checkbox' value='camera3'  checked='true' onclick='showOrHidCamera(this)'>摄像机（车辆）</input><br></br><input type='checkbox' value='gate'  checked='true' onclick='showOrHideResource(this)'>卡口</input><br></br><input type='checkbox' value='rfid'  checked='true' onclick='showOrHideResource(this)'>RFID</input><br></br><input type='checkbox' value='wifi'  checked='true' onclick='showOrHideResource(this)'>WIFI</input><br></br><input type='checkbox' value='GPS' onclick='showOrHideResource(this)'>GPS</input>",
+            buttons: {
+                "激活相机": function() {
+                    activeCamera();
+                },
+                "取消激活相机": function() {
+                    disactiveCamera();
+                }
+            }
+        });
+    });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>地图生成</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+</head>
+
+<body>
+    <div class="map-id" id="mapId"></div>
+    <link rel="stylesheet" href="/CloundMap/css/dialog.css">
+    <script type="text/javascript" src="/CloundMap/map/Init.js"></script>
+    
+    <script type="text/javascript" src="/CloundMap/js/jquery.js"></script>
+    
+    <script src="/CloundMap/js/dialog.js"></script>
+    
+    <script type="text/javascript">
+    var mapConfigResult =  {
+         "mapOpts": {
+             "minZoom": 9,
+             "defaultZoom": 12,
+             "maxZoom": 18,
+             "projection": "EPSG:900913",
+             "displayProjection": "EPSG:4326"
+         },
+         "vectorLayer": [{
+             "layerName": "shanghaiBaseMap1",
+             "layerType": "NPMapLib.Layers.GaoDeLayer",
+             "layerOpt": {
+                 "url": ["http://webrd01.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7", "http://webrd02.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7", "http://webrd03.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7", "http://webrd04.is.autonavi.com/appmaptile??lang=zh_cn&size=1&scale=1&style=7"],
+                 "centerPoint": [121.4832066789972, 31.275096754271267],
+                 "isBaseLayer": true
+             }
+         }],
+         "sattilateLayer": []
+     }
+    var mapContainer = document.getElementById('mapId');
+    var mapConfig = new MapPlatForm.Base.MapConfig();
+    var resultJson = mapConfig.createMap(mapContainer, mapConfigResult);
+    var map = resultJson.map;
+    var mapGeometry = new MapPlatForm.Base.MapGeometry(map);
+
+    var resources = [];
+    var line;
+
+    </script>
+    <script type="text/javascript">
+    $(function() {
+        //注册操作说明
+        registerDemoInstructions({
+            title: "扩展组件几何对象操作类",
+            height: "150",
+            width: "250",
+            position: [0, 0], //["right",60],
+            modal: false,
+            buttons: {
+                "生成标注": function() {
+                    var marker = mapGeometry.createMarker(map.getCenter(),{
+                        url: "../../images/Flag.png",
+                        size: {
+                            width: 32,
+                            height: 32
+                        },
+                        markerType: 0
+                    });
+                    map.getDefaultLayer().removeAllOverlays();
+                    map.addOverlay(marker);
+                },
+                "添加资源": function() {
+                    map.getDefaultLayer().removeAllOverlays();
+                    var point1 = new NPMapLib.Geometry.Point(121.53615636739224,31.261710442570934);
+                    var point2 = new NPMapLib.Geometry.Point(121.54309356057247,31.255948021056014);
+                    var point3 = new NPMapLib.Geometry.Point(121.55520691337088,31.247743402196654);
+                    var point4 = new NPMapLib.Geometry.Point(121.56498176277859,31.2329816754617);
+                    var point5 = new NPMapLib.Geometry.Point(121.56958312543836,31.21451903491543);
+                    var point6 = new NPMapLib.Geometry.Point(121.57332502126928,31.200746700148674);
+                    
+
+                    var marker1 = mapGeometry.createMarker(point1,{url: "../../images/map-marker-smallgreen.png",size: {width: 14,height: 21},text:'1',markerType: 0});
+                    var marker2 = mapGeometry.createMarker(point2,{url: "../../images/map-marker-smallgreen.png",size: {width: 14,height: 21},text:'6',markerType: 0});
+                    var marker3 = mapGeometry.createMarker(point3,{url: "../../images/map-marker-smallgreen.png",size: {width: 14,height: 21},text:'3',markerType: 0});
+                    var marker4 = mapGeometry.createMarker(point4,{url: "../../images/map-marker-smallgreen.png",size: {width: 14,height: 21},text:'5',markerType: 0});
+                    var marker5 = mapGeometry.createMarker(point5,{url: "../../images/map-marker-smallgreen.png",size: {width: 14,height: 21},text:'4',markerType: 0});
+                    var marker6 = mapGeometry.createMarker(point6,{url: "../../images/map-marker-smallgreen.png",size: {width: 14,height: 21},text:'2',markerType: 0});
+
+                    resources = [marker1,marker2,marker3,marker4,marker5,marker6];
+                    line = new NPMapLib.Geometry.Polyline([point6,point5,point4,point3,point2,point1]);
+
+                    map.addOverlay(marker1);
+                    map.addOverlay(marker2);
+                    map.addOverlay(marker3);
+                    map.addOverlay(marker4);
+                    map.addOverlay(marker5);
+                    map.addOverlay(marker6);
+                },
+                "资源信息基于线排序": function() {
+
+                    if(resources.length > 0){
+                        
+                        var new_resources = mapGeometry.sortingResourceByLine(resources,line,100);
+                    
+                        map.getDefaultLayer().removeAllOverlays();
+
+                        var icon1 = {url: "../../images/map-marker-smallgreen.png",size: {width: 14,height: 21},text:'1',markerType: 0};
+                        var icon2 = {url: "../../images/map-marker-smallgreen.png",size: {width: 14,height: 21},text:'2',markerType: 0};
+                        var icon3 = {url: "../../images/map-marker-smallgreen.png",size: {width: 14,height: 21},text:'3',markerType: 0};
+                        var icon4 = {url: "../../images/map-marker-smallgreen.png",size: {width: 14,height: 21},text:'4',markerType: 0};
+                        var icon5 = {url: "../../images/map-marker-smallgreen.png",size: {width: 14,height: 21},text:'5',markerType: 0};
+                        var icon6 = {url: "../../images/map-marker-smallgreen.png",size: {width: 14,height: 21},text:'6',markerType: 0};
+
+                        for (var i = 0,ci=new_resources.length; i < ci; i++) {
+                            var marker = new_resources[i];
+
+                            var icon;
+                            if(i===0){
+                                icon = icon1;
+                            }else if(i===1){
+                                icon = icon2;
+                            }else if(i===2){
+                                icon = icon3;
+                            }else if(i===3){
+                                icon = icon4;
+                            }else if(i===4){
+                                icon = icon5;
+                            }else if(i===5){
+                                icon = icon6;
+                            }
+
+                            var point = marker.getPosition();
+
+                            var newMarker = mapGeometry.createMarker(point,icon);
+
+                            map.addOverlay(newMarker);
+                        }
+                        
+                        line.setArrowStyle(NPMapLib.LINE_ARROW_TYPE_REVERSE);
+
+                        map.addOverlay(line);
+                        
+                    }else{
+                        alert('请先添加资源!');
+                    }                   
+                }
+            }
+        });
+    });
+    </script>
+</body>
+
+</html>

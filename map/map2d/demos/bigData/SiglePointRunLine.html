@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>GPS单点沿线运动</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+</head>
+
+<body>
+    <div class="map-id" id="mapId">
+    </div>
+    <link rel="stylesheet" href="/CloundMap/css/dialog.css">
+    <script type="text/javascript" src="/CloundMap/map/Init.js"></script>
+    
+    <script type="text/javascript" src="/CloundMap/js/jquery.js"></script>
+    <script src="/CloundMap/js/dialog.js"></script>
+    <script type="text/javascript">
+    $.getJSON('/CloundMap/map/mapConfig.json', mapConfigResult => {
+        var mapContainer = document.getElementById('mapId');
+        var mapConfig = new MapPlatForm.Base.MapConfig();
+        mapConfigResult.mapOpts.defaultZoom = 11;
+        var resultJson = mapConfig.createMap(mapContainer, mapConfigResult);
+        var map = resultJson.map;
+        var layer = new NPMapLib.Layers.OverlayLayer("xasas");
+        map.addLayer(layer);
+        var pt = map.getCenter();
+        var distance = new NPMapLib.GisToolKit().getDistanceByProjection(2000, map);
+        var points = [];
+        for (var i = -5; i < 5; i++) {
+            var p = new NPMapLib.Geometry.Point(pt.lon + i * distance, pt.lat);
+            points.push(p);
+        }
+        for (var i = 0; i < 10; i++) {
+            var p = new NPMapLib.Geometry.Point(pt.lon + 5 * distance, pt.lat + i * distance);
+            points.push(p);
+        }
+        //var line = new NPMapLib.Geometry.Polyline(points);
+        var offset = new NPMapLib.Geometry.Size(0, -12);
+        var headerMarker = new NPMapLib.Symbols.Marker(points[0], {
+            offset: offset
+        });
+        var icon = new NPMapLib.Symbols.Icon("../../images/temptracker.png", new NPMapLib.Geometry.Size(29, 29));
+        headerMarker.setIcon(icon);
+
+        var startMarker = new NPMapLib.Symbols.Marker(points[0]);
+        var starticon = new NPMapLib.Symbols.Icon("../../images/map-marker-start.png", new NPMapLib.Geometry.Size(29, 29));
+        startMarker.setIcon(starticon);
+
+        var endMarker = new NPMapLib.Symbols.Marker(points[points.length - 1]);
+        var endicon = new NPMapLib.Symbols.Icon("../../images/map-marker-end.png", new NPMapLib.Geometry.Size(29, 29));
+        endMarker.setIcon(endicon);
+
+        map.addOverlay(startMarker);
+        map.addOverlay(endMarker);
+        //多段线
+        var polyline = new NPMapLib.Geometry.Polyline(points, {
+            color: "blue", //颜色
+            weight: 5, //宽度，以像素为单位
+            opacity: 0.5, //透明度，取值范围0 - 1
+            lineStyle: 'shortdashdotdot' //样式
+        });
+
+        var options = {
+            speed: 1000, //速度 米/秒
+            isReturn: false, //是否往返：若为true，则来回推演
+            isRepeat: false //是否重复：若为true，则反复推演
+        };
+
+        var animation = null;
+
+        map.addOverlay(polyline);
+        if (headerMarker) {
+            window.animation = animation = new NPMapLib.Symbols.Animation(map.id, headerMarker, options);
+            animation.setPath(polyline);
+            map.addOverlay(headerMarker);
+        }
+        animation.start();       
+    });
+    </script>
+    </script>
+</body>
+
+</html>

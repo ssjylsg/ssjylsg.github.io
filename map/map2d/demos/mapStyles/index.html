@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>地图生成</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+</head>
+
+<body>
+    <div class="map-id" id="mapId"></div>
+    <link rel="stylesheet" href="/CloundMap/css/dialog.css">
+    <script type="text/javascript" src="/CloundMap/map/Init.js"></script>
+    
+    <script type="text/javascript" src="/CloundMap/js/jquery.js"></script>
+    <script src="/CloundMap/js/dialog.js"></script>
+    <script type="text/javascript">
+    function findValueByKey(key) {
+        var search = window.location.search.substring(1).split('&');
+        for (var i = search.length - 1; i >= 0; i--) {
+            if (search[i].split('=')[0] === key) {
+                return search[i].split('=')[1]
+            }
+        }
+        return null;
+    }
+    $.getJSON('/CloundMap/map/mapConfig.json', mapConfigResult => {
+        var mapContainer = document.getElementById('mapId');
+        var mapConfig = new MapPlatForm.Base.MapConfig();
+        mapConfigResult.mapOpts.defaultZoom = 11;
+        var resultJson = mapConfig.createMap(mapContainer, mapConfigResult);
+        var map = resultJson.map;
+
+        var k = findValueByKey('style');
+        if (k) {
+            $.getJSON('/CloundMap/mapStyles/gaode/' + k + '.json', style => {
+                map.setMapStyle(style);
+            });
+        }
+    })
+    </script>
+</body>
+
+</html>

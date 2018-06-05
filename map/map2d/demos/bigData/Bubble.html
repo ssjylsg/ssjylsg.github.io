@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>气泡标注</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+</head>
+
+<body>
+    <div class="map-id" id="mapId">
+    </div>
+    <link rel="stylesheet" href="/CloundMap/css/dialog.css">
+    <script type="text/javascript" src="/CloundMap/map/Init.js"></script>
+    
+    <script type="text/javascript" src="/CloundMap/js/jquery.js"></script>
+    <script src="/CloundMap/js/dialog.js"></script>
+    <script type="text/javascript">
+    var map;
+    $.getJSON('/CloundMap/map/mapConfig.json', mapConfigResult => {
+        var mapContainer = document.getElementById('mapId');
+        var tool = new MapPlatForm.Base.MapConfig();
+        var resultJson = tool.createMap(mapContainer, mapConfigResult);
+        map = resultJson.map;        
+        var pt = new NPMap.Geometry.Point(116.42085846891749, 40.038993513103506);
+        map.setCenter(pt, 10);
+        createBubble();
+    });
+    var data = [{
+            "areacode": "110101",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.418757,39.917544",
+            "name": "东城区"
+        },
+        {
+            "areacode": "110102",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.366794,39.915309",
+            "name": "西城区"
+        },
+        {
+            "areacode": "110105",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.486409,39.921489",
+            "name": "朝阳区"
+        },
+        {
+            "areacode": "110106",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.286968,39.863642",
+            "name": "丰台区"
+        },
+        {
+            "areacode": "110107",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.195445,39.914601",
+            "name": "石景山区"
+        },
+        {
+            "areacode": "110108",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.310316,39.956074",
+            "name": "海淀区"
+        },
+        {
+            "areacode": "110109",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.105381,39.937183",
+            "name": "门头沟区"
+        },
+        {
+            "areacode": "110111",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.139157,39.735535",
+            "name": "房山区"
+        },
+        {
+            "areacode": "110112",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.658603,39.902486",
+            "name": "通州区"
+        },
+        {
+            "areacode": "110113",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.653525,40.128936",
+            "name": "顺义区"
+        },
+        {
+            "areacode": "110114",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.235906,40.218085",
+            "name": "昌平区"
+        },
+        {
+            "areacode": "110115",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.338033,39.728908",
+            "name": "大兴区"
+        },
+        {
+            "areacode": "110116",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.637122,40.324272",
+            "name": "怀柔区"
+        },
+        {
+            "areacode": "110117",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "117.112335,40.144783",
+            "name": "平谷区"
+        },
+        {
+            "areacode": "110118",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "116.843352,40.377362",
+            "name": "密云区"
+        },
+        {
+            "areacode": "110119",
+            "baiduCode": "",
+            "business": [
+
+            ],
+            "center": "115.985006,40.465325",
+            "name": "延庆区"
+        }
+    ];
+    var bubbles = [];
+
+    function createBubble() {
+        for (var i = 0; i < data.length; i++) {
+            var pt = new NPMapLib.Geometry.Point(data[i].center.split(',')[0] * 1.0, data[i].center.split(',')[1] * 1.0);
+            var bubble = new NPMapLib.Symbols.Bubble(pt, { color: '#FF0000' });
+            map.addOverlay(bubble);
+            bubbles.push(bubble);
+        }
+    }
+    </script>    
+</body>
+
+</html>

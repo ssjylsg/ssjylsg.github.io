@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>获取鼠标经纬度</title>
+    <link rel="stylesheet" href="//minedata.cn/minemapapi/v1.3/minemap.css">
+    <script src="//minedata.cn/minemapapi/v1.3/minemap.js"></script>
+    <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="map">
+    <div id="info"></div>
+</div>
+<script>
+
+    minemap.domainUrl = '//minedata.cn';
+     minemap.dataDomainUrl = '//datahive.minedata.cn';
+     minemap.spriteUrl = '//minedata.cn/minemapapi/v1.3/sprite/sprite';
+     minemap.serviceUrl = '//minedata.cn/service';
+    minemap.accessToken = '25cc55a69ea7422182d00d6b7c0ffa93';
+    minemap.solution = 3456;
+    var map = new minemap.Map({
+        container: 'map',
+        style: "//minedata.cn/service/solu/style/id/3456",
+        center: [116.46,39.92],
+        zoom: 16,
+        pitch: 60,
+        maxZoom:22
+    });
+
+    map.on("click", function (e) {
+
+        var lngLat = e.lngLat;
+        var point = e.point;
+
+        /**
+         * 这个获取经纬度有两种方式，lngLat是我们的基本返回对象，用户可以用
+         * 1 lngLat.lng 获取经度     lngLat.lat 获取纬度
+         * 2 lngLat.toArray()   获取一个数组 [经度，纬度]
+         */
+
+        document.getElementById("info").innerHTML = ("经纬度坐标：" + lngLat.toArray() + "  像素点坐标：x-" + point.x + ",y-" + point.y);
+
+    })
+
+</script>
+</body>

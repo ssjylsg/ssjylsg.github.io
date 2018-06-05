@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>车流OD分析2</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <link rel="stylesheet" href="/CloundMap/css/dialog.css">
+</head>
+
+<body>
+    <div class="map-id" id="mapId"></div>
+    
+    <script type="text/javascript" src="/CloundMap/map/Init.js"></script>
+    
+    <script type="text/javascript" src="/CloundMap/js/jquery.js"></script>
+    
+    <script src="/CloundMap/js/dialog.js"></script>
+    
+    
+
+    <script type="text/javascript">
+
+         var mapConfigResult =  {
+                 "mapOpts": {
+                     "minZoom":6,
+                     "defaultZoom": 8,
+                     "maxZoom": 18,
+                     "projection": "EPSG:900913",
+                     "displayProjection": "EPSG:4326",
+                     "restrictedExtent": [-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892]
+                 },
+                 "vectorLayer": [{
+                     "layerName": "shanghaiBaseMap1",
+                     "layerType": "NPMapLib.Layers.BaiduTileLayer",
+                     "layerOpt": {
+                         "url": ["http://api0.map.bdimg.com/customimage/tile?&x=${x}&y=${y}&z=${z}&udt=20150601&styles=t%3Aland%7Ce%3Ag%7Cc%3A%23303845%2Ct%3Awater%7Ce%3Aall%7Cc%3A%23232931%2Ct%3Agreen%7Ce%3Aall%7Cc%3A%23232931%2Ct%3Aadministrative%7Ce%3Al.t.s%7Cc%3A%231e232a%2Ct%3Ahighway%7Ce%3Aall%7Cv%3Aoff%7Cc%3A%231e232a%7Cw%3A0.1%2Ct%3Alocal%7Ce%3Aall%7Cv%3Aoff%7Cc%3A%231e232a%7Cw%3A0.1%2Ct%3Asubway%7Ce%3Aall%7Cv%3Aoff%7Cw%3A0.1%2Ct%3Arailway%7Ce%3Aall%7Cv%3Aoff%7Cc%3A%231e232a%7Cw%3A0.1%2Ct%3Aroad%7Ce%3Aall%7Cv%3Aon%7Cc%3A%23ffffff%7Cw%3A0.1%2Ct%3Apoi%7Ce%3Aall%7Cv%3Aoff%2Ct%3Amanmade%7Ce%3Aall%7Cv%3Aoff%2Ct%3Aadministrative%7Ce%3Al.t.f%7Cc%3A%2366788f%7Cw%3A0.1%2Ct%3Alabel%7Ce%3Al.t.f%7Cc%3A%2366788f%2Ct%3Aroad%7Ce%3Aall%7Cv%3Aon%7Cc%3A%231a1f24%2Ct%3Aroad%7Ce%3Al.t.f%7Cc%3A%2366788f%2Ct%3Asubway%7Ce%3Al.i%7Cv%3Aoff%7Cc%3A%2366788f%2Ct%3Ahighway%7Ce%3Al.i%7Cv%3Aoff","http://api1.map.bdimg.com/customimage/tile?&x=${x}&y=${y}&z=${z}&udt=20150601&styles=t%3Aland%7Ce%3Ag%7Cc%3A%23303845%2Ct%3Awater%7Ce%3Aall%7Cc%3A%23232931%2Ct%3Agreen%7Ce%3Aall%7Cc%3A%23232931%2Ct%3Aadministrative%7Ce%3Al.t.s%7Cc%3A%231e232a%2Ct%3Ahighway%7Ce%3Aall%7Cv%3Aoff%7Cc%3A%231e232a%7Cw%3A0.1%2Ct%3Alocal%7Ce%3Aall%7Cv%3Aoff%7Cc%3A%231e232a%7Cw%3A0.1%2Ct%3Asubway%7Ce%3Aall%7Cv%3Aoff%7Cw%3A0.1%2Ct%3Arailway%7Ce%3Aall%7Cv%3Aoff%7Cc%3A%231e232a%7Cw%3A0.1%2Ct%3Aroad%7Ce%3Aall%7Cv%3Aon%7Cc%3A%23ffffff%7Cw%3A0.1%2Ct%3Apoi%7Ce%3Aall%7Cv%3Aoff%2Ct%3Amanmade%7Ce%3Aall%7Cv%3Aoff%2Ct%3Aadministrative%7Ce%3Al.t.f%7Cc%3A%2366788f%7Cw%3A0.1%2Ct%3Alabel%7Ce%3Al.t.f%7Cc%3A%2366788f%2Ct%3Aroad%7Ce%3Aall%7Cv%3Aon%7Cc%3A%231a1f24%2Ct%3Aroad%7Ce%3Al.t.f%7Cc%3A%2366788f%2Ct%3Asubway%7Ce%3Al.i%7Cv%3Aoff%7Cc%3A%2366788f%2Ct%3Ahighway%7Ce%3Al.i%7Cv%3Aoff"
+                         ],
+                         
+                         "centerPoint": [118.796759, 33.060419],
+                         "fullExtent": [-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892],
+                         "isBaseLayer": true
+                     }
+                 }],
+                 "sattilateLayer": []
+             };
+            
+            var mapContainer = document.getElementById('mapId');
+            var mapConfig = new MapPlatForm.Base.MapConfig();
+            var resultJson = mapConfig.createMap(mapContainer, mapConfigResult);
+            var npMap = resultJson.map;
+
+    </script>
+
+    <script src="./jiaotong/CoordinateHelper.js"></script>
+    <script src="./jiaotong/TrafficUtil.js"></script>
+    <script src="./jiaotong/MapMask.js"></script>
+    <script src="./jiaotong/TrafficLayer3.js"></script>
+
+    <script type="text/javascript">
+
+        var data = [];
+
+        var trafficLayer = new MapPlatForm.Base.TrafficLayer3(npMap);
+
+        trafficLayer.setStyle({
+            lineColor: 'rgba(255,0,0,1)',
+            lineFillColor: 'rgba(255,255,255,1)',
+            lineWidth: 0.5
+                //pointColor: 'rgba(0,255,0,0.9)',
+                //pointSize:10
+        });
+        
+        $(function() {
+            //注册操作说明
+            registerDemoInstructions({
+                title: "车流OD分析2",
+                height: "50",
+                width: "250",
+                position: ["right",60],
+                content:"<div id='resultDom' style='width:100%;height:100%'></div>",
+                modal: false,
+                buttons: {
+                    "清除": function() {
+                       trafficLayer.remove();
+                    },
+                    "加载": function() {
+                        trafficLayer.show(data);
+                    }
+                }
+            });
+        });
+
+        // 请求数据
+        requestData();
+        
+
+        function requestData() {
+            var mapper = {
+                a: "133",
+                b: "37"
+            };
+
+            $.ajax({
+                url: "./jiaotong/data.html",
+                success: function(rs) {
+
+                    for (var key in mapper) {
+                        var reg = new RegExp(key, "g");
+                        rs = rs.replace(reg, mapper[key]);
+                    }
+
+                    rs = rs.split("\n");
+                    for (var i = 0; i < rs.length; i++) {
+                        var item = rs[i].split(";");
+                        var line = [];
+                        for (var j = 0; j < item.length; j++) {
+
+                            var mPoint = item[j].split(",");
+                            var degreePoint = CoordinateHelper.webMoctorToDegree(mPoint[0] * 100, mPoint[1] * 100);
+
+                            var decryptPoint = CoordinateHelper.bdTodecrypt(degreePoint.lon, degreePoint.lat);
+                            var wgs84Point = CoordinateHelper.gcjTowgs84(decryptPoint.lon, decryptPoint.lat);
+
+                            var lon = wgs84Point.lon;
+                            var lat = wgs84Point.lat;
+
+                            line.push([lon, lat]);
+
+                        }
+                        data.push(line);
+                    }
+
+
+                    trafficLayer.show(data);
+
+                }
+            });
+        }
+    </script>
+    
+</body>
+
+</html>
