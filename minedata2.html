@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+     
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.js"></script>
+<script>
+     function Z(t, e, r) {
+        for (var n = "", i = e; i < r; ) {
+            var a = t[i]
+              , o = null
+              , s = a > 239 ? 4 : a > 223 ? 3 : a > 191 ? 2 : 1;
+            if (i + s > r)
+                break;
+            var u = void 0
+              , l = void 0
+              , p = void 0;
+            1 === s ? a < 128 && (o = a) : 2 === s ? 128 == (192 & (u = t[i + 1])) && (o = (31 & a) << 6 | 63 & u) <= 127 && (o = null) : 3 === s ? (l = t[i + 2],
+            128 == (192 & (u = t[i + 1])) && 128 == (192 & l) && ((o = (15 & a) << 12 | (63 & u) << 6 | 63 & l) <= 2047 || o >= 55296 && o <= 57343) && (o = null)) : 4 === s && (l = t[i + 2],
+            p = t[i + 3],
+            128 == (192 & (u = t[i + 1])) && 128 == (192 & l) && 128 == (192 & p) && ((o = (15 & a) << 18 | (63 & u) << 12 | (63 & l) << 6 | 63 & p) <= 65535 || o >= 1114112) && (o = null)),
+            null === o ? (o = 65533,
+            s = 1) : o > 65535 && (o -= 65536,
+            n += String.fromCharCode(o >>> 10 & 1023 | 55296),
+            o = 56320 | 1023 & o),
+            n += String.fromCharCode(o),
+            i += s;
+        }
+        return n
+    }
+    var $ = function(t, e) {
+        void 0 === e && (e = {});
+        var r = t.responseURL || t.__responseURL || e.url
+          , n = t.response ? t.response : t
+          , i = n ? n.byteLength : 0
+          , a = J("token", r) || ""
+          , o = J("appKey", r) || ""
+          , s = J("key", r) || ""
+          , u = s.length > 0 ? s : o.length > 0 ? o : a;
+        if (u.length > 0 && i > 8) {
+            var l = new Uint8Array(n)
+              , p = Z(l, i - 8, i)
+              , c = Z(l, 0, 9);
+            if (p && "minedata" === p.toLowerCase())
+                return function(t, e) {
+                    var r = t.length - 8;
+                    if (r <= e)
+                        for (var n = 0; n < r / 2; n++) {
+                            var i = t[n];
+                            t[n] = t[r - n - 1],
+                            t[r - n - 1] = i;
+                        }
+                    else
+                        for (var a = parseInt(r / e), o = parseInt(e / 2), s = 0; s < a; s++)
+                            for (var u = s * e, l = (s + 1) * e - 1, p = u, c = 0; p < u + o; p++,
+                            c++) {
+                                var h = l - c
+                                  , y = t[p];
+                                t[p] = t[h],
+                                t[h] = y;
+                            }
+                }(l, function(t) {
+                    for (var e = 0, r = t.length, n = 0; n < r; n++)
+                        e += t.charCodeAt(n);
+                    return parseInt(e / r)
+                }(u)),
+                l.slice(0, i - 8);
+            if (c && "mineearth" === c.toLowerCase()) {
+                var h = l[9]
+                  , y = l[10];
+                return function(t, e, r) {
+                    for (var n = Math.floor((t.length - e * r) / e), i = Array.from(t), a = 0, o = n, s = [], u = 0; u < e; u++) {
+                        var l = i.slice(a, o);
+                        s.push(l),
+                        o = (a = o + r) + n;
+                    }
+                    if (i.length > a) {
+                        var p = i.slice(a, i.length);
+                        s.push(p);
+                    }
+                    return new Uint8Array(s.flat())
+                }(l.slice(11, l.length), h, y)
+            }
+        }
+        return n
+    }
+    function J(t, e) {
+        if (e && -1 !== e.indexOf("?")) {
+            var r = e.split("?")[1]
+              , n = new RegExp("(^|&)" + t + "=([^&]*)(&|$)")
+              , i = r.match(n);
+            if (null != i)
+                return unescape(i[2])
+        }
+        return null
+    }
+    var layer = new ol.layer.VectorTile({
+        source: new ol.source.VectorTile({
+            format: new ol.format.MVT(),
+            maxZoom: 17,
+            url: 'https://minedata.cn/service/data/mvt-layer?datasource=merge&z={z}&x={x}&y={y}&request=GetTile&key=16be596e00c44c86bb1569cb53424dc9&solu=12877',
+            tileLoadFunction: (tile, url) => {
+                var coord = tile.getTileCoord();
+                let key = [coord[0], coord[1], -(coord[2] + 1)].join();
+
+                tile.setLoader(function () {
+                    var format = tile.getFormat();
+                    fetch(url,{responseType:'arraybuffer'})
+                        //.then(r => r.blob())
+                        .then(r => r.arrayBuffer())
+                        .then(r => {
+                            var data = $(r, { url: url });
+                            tile.setProjection(format.readProjection(data));
+                            tile.setFeatures(format.readFeatures(data, {
+                                featureProjection: map.getView().getProjection()
+                            }));
+                            tile.setExtent(format.getLastExtent());
+                        });
+                })
+            }
+        })
+    });
+    const map = new ol.Map({
+        layers: [
+            layer
+        ],
+        target: 'map',
+        view: new ol.View({
+            center: ol.proj.fromLonLat([123.0064, 34.7142]),
+            maxZoom: 19,
+            zoom: 15,
+        }),
+    });
+</script>
+
+</html>
