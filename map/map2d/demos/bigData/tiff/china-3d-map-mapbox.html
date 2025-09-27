@@ -1,0 +1,650 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+
+<head>
+    <title>Mapbox 中国三维地图</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+
+    <!-- Mapbox GL CSS -->
+    <link href="mapbox-gl.css" rel="stylesheet" />
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" href="/CloundMap/css/dialog.css">
+
+    <style>
+        #mapId {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .map-controls button {
+            display: block;
+            margin: 8px 0;
+            padding: 8px 12px;
+            background-color: #3DA3EF;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .map-controls button:hover {
+            background-color: #2980b9;
+        }
+
+        .province-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            max-width: 300px;
+            border: 2px solid #3b82f6;
+        }
+
+        .province-info h3 {
+            margin: 0 0 10px 0;
+            color: #3b82f6;
+            font-size: 18px;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="loading-overlay" id="loadingOverlay">加载中，请稍候...</div>
+    <div class="map-id" id="mapId"></div>
+
+    <div class="map-controls">
+        <button id="toggle3D">切换3D/2D</button>
+        <button id="resetView">重置视角</button>
+        <button id="toggleExaggeration">调整高度夸张</button>
+        <button id="toggleBoundary">切换边界高亮</button>
+        <button id="toggleTiff">切换TIFF图层</button>
+    </div>
+
+    <div class="province-info" id="provinceInfo" style="display: none;">
+        <h3>省份信息</h3>
+        <p id="provinceName">--</p>
+        <p id="provinceArea">面积: --</p>
+    </div>
+
+    <!-- Mapbox GL JS -->
+    <script src="mapbox-gl.js"></script>
+
+
+
+    <script type="text/javascript">
+        // 设置Mapbox访问令牌
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic3NqeWxzZyIsImEiOiJjajdpZG1veWsxc2YyMzNvMnAwd29nczJtIn0.zFTMXJTrsRsngZv3JW1bkA'; // 示例令牌，实际使用时请替换为您自己的令牌
+
+        // 初始化变量
+        var map;
+        var terrainExaggeration = 2.5;
+        var is3D = true;
+        var chinaGeoJSON = null;
+        var boundaryVisible = true; // 边界高亮显示状态
+        var tiffLayerVisible = false; // TIFF图层显示状态
+
+        // 初始化地图
+        function initMap() {
+            // 创建地图实例
+            map = new mapboxgl.Map({
+                container: 'mapId',
+                style: 'mapbox://styles/mapbox/dark-v10', // 使用深色主题
+                center: [104.072365, 35.857014], // 中国中心点
+                zoom: 3.5,
+                minZoom: 2.5,
+                maxZoom: 8,
+                pitch: 45, // 添加倾斜角度以更好地显示3D效果
+                bearing: 0,
+                projection: 'globe',
+                hash: true,
+                attributionControl: true,
+                antialias: true // 启用抗锯齿以获得更好的3D渲染质量
+            });
+
+            // 添加导航控件
+            map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+
+            // 地图加载完成后执行
+            map.on('load', function () {
+                console.log('地图已加载');
+
+                // 添加地形图层
+                // map.addSource('mapbox-dem', {
+                //     'type': 'raster-dem',
+                //     'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+                //     'tileSize': 512,
+                //     'maxzoom': 14
+                // });
+
+                // // 设置地形
+                // map.setTerrain({
+                //     'source': 'mapbox-dem',
+                //     'exaggeration': terrainExaggeration
+                // });
+
+                // 添加天空图层
+                map.addLayer({
+                    'id': 'sky',
+                    'type': 'sky',
+                    'paint': {
+                        'sky-type': 'atmosphere',
+                        'sky-atmosphere-sun': [0.0, 0.0],
+                        'sky-atmosphere-sun-intensity': 15
+                    }
+                });
+
+                // 加载中国省份数据
+                loadChinaGeoJSON();
+            });
+
+            // 地图渲染完成后隐藏加载指示器
+            map.on('render', function () {
+                if (map.loaded()) {
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                }
+            });
+        }
+
+        // 加载中国省份GeoJSON数据
+        function loadChinaGeoJSON() {
+            // 这里使用本地的china.json文件，假设它包含中国省份的边界数据
+            fetch('/data/china.json').then(response => response.json()).then(data => {
+                chinaGeoJSON = data;
+
+                // 添加GeoJSON源
+                map.addSource('china-provinces', {
+                    'type': 'geojson',
+                    'data': chinaGeoJSON
+                });
+
+                // // 添加3D拉伸省份填充图层
+                map.addLayer({
+                    'id': 'china-provinces-fill',
+                    'type': 'fill-extrusion',
+                    'source': 'china-provinces',
+                    'paint': {
+                        'fill-extrusion-color': '#1e3a8a',
+                        'fill-extrusion-height': 50000, // 拉伸高度50公里
+                        'fill-extrusion-opacity': 0.8,
+                        'fill-extrusion-vertical-gradient': true
+                    }
+                });
+
+                // // 添加省份描边图层
+                map.addLayer({
+                    'id': 'china-provinces-stroke',
+                    'type': 'line',
+                    'source': 'china-provinces',
+                    'paint': {
+                        'line-color': '#3b82f6',
+                        'line-width': 2,
+                        'line-opacity': 0.9
+                    }
+                });
+
+                // // 创建中国外边界数据
+               //  createChinaBoundary();
+                
+                // 加载TIFF图层
+                loadTiffLayer();
+
+                
+                map.addLayer({
+                    'id': 'china-provinces-labels',
+                    'type': 'symbol',
+                    'source': 'china-provinces',
+                    'layout': {
+                        'text-field': ['get', 'name'],
+                        'text-font': ['Arial Unicode MS Bold'],
+                        'text-size': 14,
+                        'text-anchor': 'center',
+                        'text-offset': [0, 0],
+                        'visibility': 'visible'
+                    },
+                    'paint': {
+                        'text-color': '#ffffff',
+                        'text-halo-color': '#1e3a8a',
+                        'text-halo-width': 2,
+                        'text-opacity': 0.9
+                    }
+                });
+
+                // 添加鼠标悬停效果
+                addProvinceInteractions();
+            })
+        }
+
+        // 创建中国外边界高亮线段
+        function createChinaBoundary() {
+            // 从现有的省份数据中提取外边界
+            var boundaryFeatures = [];
+            
+            if (chinaGeoJSON && chinaGeoJSON.features) {
+                // 合并所有省份的边界来创建国界线
+                var allCoordinates = [];
+                
+                chinaGeoJSON.features.forEach(function(feature) {
+                    if (feature.geometry.type === 'MultiPolygon') {
+                        feature.geometry.coordinates.forEach(function(polygon) {
+                            allCoordinates.push(polygon[0]); // 取外环
+                        });
+                    } else if (feature.geometry.type === 'Polygon') {
+                        allCoordinates.push(feature.geometry.coordinates[0]); // 取外环
+                    }
+                });
+
+                // 创建边界要素
+                allCoordinates.forEach(function(coords, index) {
+                    boundaryFeatures.push({
+                        "type": "Feature",
+                        "properties": { 
+                            "name": "中国边界_" + index,
+                            "type": "boundary"
+                        },
+                        "geometry": {
+                            "type": "LineString",
+                            "coordinates": coords
+                        }
+                    });
+                });
+            }
+
+            var chinaBoundaryGeoJSON = {
+                "type": "FeatureCollection",
+                "features": boundaryFeatures
+            };
+
+            // 添加中国外边界数据源
+            map.addSource('china-boundary', {
+                'type': 'geojson',
+                'data': chinaBoundaryGeoJSON
+            });
+
+            // 添加外边界高亮线段图层
+            map.addLayer({
+                'id': 'china-boundary-highlight',
+                'type': 'line',
+                'source': 'china-boundary',
+                'paint': {
+                    'line-color': '#00ffff', // 青色高亮
+                    'line-width': 4,
+                    'line-opacity': 0.8,
+                    'line-blur': 1
+                }
+            });
+
+            // 添加外边界发光效果图层
+            map.addLayer({
+                'id': 'china-boundary-glow',
+                'type': 'line',
+                'source': 'china-boundary',
+                'paint': {
+                    'line-color': '#00ffff',
+                    'line-width': 8,
+                    'line-opacity': 0.3,
+                    'line-blur': 3
+                }
+            });
+
+            // 添加外边界内发光图层
+            map.addLayer({
+                'id': 'china-boundary-inner-glow',
+                'type': 'line',
+                'source': 'china-boundary',
+                'paint': {
+                    'line-color': '#ffffff',
+                    'line-width': 2,
+                    'line-opacity': 0.6
+                }
+            });
+        }
+
+        // 加载TIFF图层
+        function loadTiffLayer() {
+            // 方案1: 使用本地文件路径(需要先放置在项目目录下)
+            
+            
+            // 方案2: 如果你有已经转换的瘣片服务URL，可以直接使用
+             
+              var tiffUrl = 'out.png';
+            //   var imageBounds = [
+            //     [73.5, 3.397161870], // 西南角 [lng, lat]
+            //     [135.095670000, 53.563269000]  // 东北角 [lng, lat]
+            // ];
+            
+            // map.addSource('china-tiff-static', {
+            //     'type': 'image',
+            //     'url': tiffUrl,
+            //     'coordinates': [
+            //         [imageBounds[0][0], imageBounds[1][1]], // 左上
+            //         [imageBounds[1][0], imageBounds[1][1]], // 右上  
+            //         [imageBounds[1][0], imageBounds[0][1]], // 右下
+            //         [imageBounds[0][0], imageBounds[0][1]]  // 左下
+            //     ]
+            // });
+            
+            // map.addLayer({
+            //     'id': 'china-tiff-static-layer',
+            //     'type': 'raster',
+            //     'source': 'china-tiff-static',
+            //     'paint': {
+            //         'raster-opacity': 0.7
+            //     },
+            //     'layout': {
+            //      //   'visibility': 'none' // 默认隐藏
+            //     }
+            // });//, 'china-provinces-fill');
+            // try {
+            //     // 方案A: 作为栅格图层添加 (需要预先转换为瘣片)
+                map.addSource('china-tiff', {
+                    'type': 'raster',
+                    'tiles': [
+                        // 这里需要使用已经转换为瘣片的URL模式
+                        // 例如: 'https://your-server.com/tiles/{z}/{x}/{y}.png'
+                        'tiff/{z}/{x}/{y}.png' // 本地瘣片路径
+                    ],
+                    'tileSize': 256
+                });
+
+                map.addLayer({
+                    'id': 'china-tiff-layer',
+                    'type': 'raster',
+                    'source': 'china-tiff',
+                    'paint': {
+                        'raster-opacity': 0.7,
+                        'raster-fade-duration': 0
+                    },
+                    'layout': {
+                      //  'visibility': 'none' // 默认隐藏
+                    }
+                }); // 在省份图层下方
+                
+            //     console.log('TIFF图层已添加');
+                
+            // } catch (error) {
+            //     console.warn('TIFF图层加载失败:', error);
+                
+            //     // 备用方案: 使用静态图片覆盖层
+            //     loadStaticTiffOverlay();
+            // }
+        }
+        
+        // 备用方案: 使用静态图片覆盖层
+        function loadStaticTiffOverlay() {
+            // 如果有转换后的PNG或JPEG图片，可以作为静态覆盖层
+            var imageUrl = '/data/chinaout.png'; // 需要先将TIFF转换为PNG
+            var imageBounds = [
+                [73.5, 18.0], // 西南角 [lng, lat]
+                [135.0, 53.5]  // 东北角 [lng, lat]
+            ];
+            
+            map.addSource('china-tiff-static', {
+                'type': 'image',
+                'url': imageUrl,
+                'coordinates': [
+                    [imageBounds[0][0], imageBounds[1][1]], // 左上
+                    [imageBounds[1][0], imageBounds[1][1]], // 右上  
+                    [imageBounds[1][0], imageBounds[0][1]], // 右下
+                    [imageBounds[0][0], imageBounds[0][1]]  // 左下
+                ]
+            });
+            
+            map.addLayer({
+                'id': 'china-tiff-static-layer',
+                'type': 'raster',
+                'source': 'china-tiff-static',
+                'paint': {
+                    'raster-opacity': 0.7
+                },
+                'layout': {
+                    'visibility': 'none' // 默认隐藏
+                }
+            }, 'china-provinces-fill');
+            
+            console.log('静态TIFF覆盖层已添加');
+        }
+        function createSimpleChinaBoundary() {
+            // 简化的中国边界轮廓坐标（这只是一个示例，实际应用中需要更精确的坐标）
+            var simpleChina = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "properties": { "name": "中国" },
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [[
+                                [73.5, 53.5], [135.0, 53.5], [135.0, 18.0], [73.5, 18.0], [73.5, 53.5]
+                            ]]
+                        }
+                    }
+                ]
+            };
+
+            // 添加简化的中国边界
+            map.addSource('simple-china', {
+                'type': 'geojson',
+                'data': simpleChina
+            });
+
+            map.addLayer({
+                'id': 'simple-china-fill',
+                'type': 'fill',
+                'source': 'simple-china',
+                'paint': {
+                    'fill-color': '#1e3a8a',
+                    'fill-opacity': 0.5,
+                    'fill-outline-color': '#3b82f6'
+                }
+            });
+        }
+
+        // 添加省份交互功能
+        function addProvinceInteractions() {
+            var hoveredProvinceId = null;
+
+            // 鼠标悬停效果
+            map.on('mousemove', 'china-provinces-fill', function (e) {
+                map.getCanvas().style.cursor = 'pointer';
+
+                // 高亮显示省份
+                if (e.features.length > 0) {
+                    var feature = e.features[0];
+                    var provinceName = feature.properties.name;
+
+                    // 如果悬停的省份发生变化，更新高亮
+                    if (hoveredProvinceId !== provinceName) {
+                        // 重置之前的高亮
+                        if (hoveredProvinceId) {
+                            map.setPaintProperty('china-provinces-fill', 'fill-extrusion-color', '#1e3a8a');
+                            map.setPaintProperty('china-provinces-labels', 'text-color', '#ffffff');
+                            map.setPaintProperty('china-provinces-labels', 'text-size', 14);
+                        }
+
+                        // 设置新的高亮
+                        hoveredProvinceId = provinceName;
+                        
+                        // 高亮省份颜色
+                        map.setPaintProperty('china-provinces-fill', 'fill-extrusion-color', [
+                            'case',
+                            ['==', ['get', 'name'], provinceName],
+                            '#3b82f6', // 悬浮时的蓝色
+                            '#1e3a8a'  // 默认深蓝色
+                        ]);
+
+                        // 高亮省份标签
+                        map.setPaintProperty('china-provinces-labels', 'text-color', [
+                            'case',
+                            ['==', ['get', 'name'], provinceName],
+                            '#ffff00', // 悬浮时的黄色
+                            '#ffffff'  // 默认白色
+                        ]);
+
+                        // 增大悬浮省份标签字体
+                        // map.setPaintProperty('china-provinces-labels', 'text-size', [
+                        //     'case',
+                        //     ['==', ['get', 'name'], provinceName],
+                        //     18, // 悬浮时的大字体
+                        //     14  // 默认字体大小
+                        // ]);
+                    }
+
+                    // 显示省份信息
+                    // document.getElementById('provinceName').textContent = '名称: ' + provinceName;
+                    // var area = feature.properties.area ? '面积: ' + feature.properties.area + ' 平方公里' : '面积: 暂无数据';
+                    // document.getElementById('provinceArea').textContent = area;
+                    // document.getElementById('provinceInfo').style.display = 'block';
+                }
+            });
+
+            // 鼠标离开省份
+            map.on('mouseleave', 'china-provinces-fill', function () {
+                map.getCanvas().style.cursor = '';
+
+                // 重置所有高亮效果
+                hoveredProvinceId = null;
+                map.setPaintProperty('china-provinces-fill', 'fill-extrusion-color', '#1e3a8a');
+                map.setPaintProperty('china-provinces-labels', 'text-color', '#ffffff');
+                map.setPaintProperty('china-provinces-labels', 'text-size', 14);
+
+                // 隐藏省份信息
+                document.getElementById('provinceInfo').style.display = 'none';
+            });
+
+            // 点击省份
+            map.on('click', 'china-provinces-fill', function (e) {
+                if (e.features.length > 0) {
+                    var feature = e.features[0];
+                    var provinceName = feature.properties.name;
+                    var center = feature.properties.center || feature.properties.centroid;
+
+                    // 弹出省份信息
+                    new mapboxgl.Popup()
+                        .setLngLat(center || e.lngLat)
+                        .setHTML('<div style="text-align:center;"><h3>' + provinceName + '</h3><p>点击查看详情</p></div>')
+                        .addTo(map);
+
+                    // 调整视角到选中的省份，使用中心点
+                    if (center) {
+                        map.flyTo({
+                            center: center,
+                            zoom: 6,
+                            duration: 1500
+                        });
+                    }
+                }
+            });
+        }
+
+        // 切换3D/2D视图
+        function toggle3DView() {
+            is3D = !is3D;
+
+            if (is3D) {
+                map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': terrainExaggeration });
+                map.getLayer('sky').layout = { 'visibility': 'visible' };
+            } else {
+                map.setTerrain(null);
+                map.getLayer('sky').layout = { 'visibility': 'none' };
+            }
+        }
+
+        // 重置视角
+        function resetView() {
+            map.flyTo({
+                center: [104.072365, 35.857014],
+                zoom: 3.5,
+                duration: 1500
+            });
+        }
+
+        // 调整地形高度夸张
+        function toggleTerrainExaggeration() {
+            if (terrainExaggeration === 2.5) {
+                terrainExaggeration = 5.0;
+            } else if (terrainExaggeration === 5.0) {
+                terrainExaggeration = 1.0;
+            } else {
+                terrainExaggeration = 2.5;
+            }
+
+            if (is3D) {
+                map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': terrainExaggeration });
+            }
+        }
+
+        // 注册事件监听器
+        function registerEventListeners() {
+            document.getElementById('toggle3D').addEventListener('click', toggle3DView);
+            document.getElementById('resetView').addEventListener('click', resetView);
+            document.getElementById('toggleExaggeration').addEventListener('click', toggleTerrainExaggeration);
+            document.getElementById('toggleBoundary').addEventListener('click', loadTiffLayer);
+
+            // 窗口大小调整
+            window.addEventListener('resize', function () {
+                map.resize();
+            });
+        }
+
+        // 初始化
+        function init() {
+            initMap();
+            registerEventListeners();
+
+            // 注册操作说明
+            // registerDemoInstructions({
+            //     title: "Mapbox中国三维地图",
+            //     height: "200",
+            //     width: "300",
+            //     position: [0, 0],
+            //     modal: false,
+            //     buttons: {
+            //         "了解更多": function () {
+            //             alert("Mapbox GL JS是一个强大的JavaScript库，用于显示自定义地图。\n\n此演示展示了中国的三维地形地图，支持视角控制、省份高亮等功能。");
+            //         }
+            //     }
+            // });
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>
